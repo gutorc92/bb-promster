@@ -99,6 +99,23 @@ if [[ "$REMOTE_WRITE_URL" != "" ]]; then
 remote_write:
   - url: $REMOTE_WRITE_URL
 EOM
+    if [[ "$REMOTE_WRITE_BEARER_TOKEN" != "" ]]; then
+        cat >> "/prometheus.yml.tmpl" <<- EOM
+
+    bearer_token: $REMOTE_WRITE_BEARER_TOKEN
+EOM
+    elif [[ "$REMOTE_WRITE_BASIC_AUTH" != "" ]]; then
+        # arrIN=(${REMOTE_BASIC_AUTH//:/ });
+        USERNAME="$(echo "$REMOTE_WRITE_BASIC_AUTH" | cut -d':' -f1)"
+        PASSWORD="$(echo "$REMOTE_WRITE_BASIC_AUTH" | cut -d':' -f2)"
+        cat >> "/prometheus.yml.tmpl" <<- EOM
+    basic_auth: 
+       username: $USERNAME
+       password: $PASSWORD
+EOM
+    fi
 fi
+
+
 
 sh /startup.sh # inherited from flaviostutz/promster
